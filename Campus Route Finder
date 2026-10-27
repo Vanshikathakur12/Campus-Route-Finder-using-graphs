@@ -1,0 +1,93 @@
+#include <stdio.h>
+
+#define V 8
+
+char *places[V] = {
+    "Main Gate", "Library", "Block 1", "Block 2",
+    "Cafeteria", "Auditorium", "Parking", "Lab"
+};
+
+int graph[V][V] = {
+    {0,1,1,0,0,0,0,0},
+    {1,0,0,1,1,0,0,0},
+    {1,0,0,1,0,0,1,0},
+    {0,1,1,0,0,0,0,1},
+    {0,1,0,0,0,1,0,0},
+    {0,0,0,0,1,0,1,0},
+    {0,0,1,0,0,1,0,0},
+    {0,0,0,1,0,0,0,0}
+};
+
+void BFS(int start, int end) {
+    int q[V], parent[V], visited[V] = {0};
+    int front = 0, rear = 0, i, current, path[V], n = 0;
+
+    for (i = 0; i < V; i++)
+        parent[i] = -1;
+
+    q[rear++] = start;
+    visited[start] = 1;
+
+    while (front < rear) {
+        current = q[front++];
+
+        if (current == end)
+            break;
+
+        for (i = 0; i < V; i++) {
+            if (graph[current][i] && !visited[i]) {
+                visited[i] = 1;
+                parent[i] = current;
+                q[rear++] = i;
+            }
+        }
+    }
+
+    if (!visited[end]) {
+        printf("No route found!\n");
+        return;
+    }
+
+    for (i = end; i != -1; i = parent[i])
+        path[n++] = i;
+
+    printf("Shortest Route: ");
+    for (i = n - 1; i >= 0; i--) {
+        printf("%s", places[path[i]]);
+        if (i > 0) printf(" -> ");
+    }
+    printf("\n");
+}
+
+void DFS(int start, int visited[]) {
+    int i;
+    visited[start] = 1;
+    printf("%s ", places[start]);
+
+    for (i = 0; i < V; i++)
+        if (graph[start][i] && !visited[i])
+            DFS(i, visited);
+}
+
+int main() {
+    int i, start, end, visited[V] = {0};
+
+    printf("Campus Locations:\n");
+    for (i = 0; i < V; i++)
+        printf("%d. %s\n", i + 1, places[i]);
+
+    printf("\nEnter source and destination numbers: ");
+    if (scanf("%d %d", &start, &end) != 2 ||
+        start < 1 || start > V || end < 1 || end > V) {
+        printf("Invalid input!\n");
+        return 1;
+    }
+
+    BFS(start - 1, end - 1);
+
+    printf("DFS Traversal: ");
+    DFS(start - 1, visited);
+    printf("\n");
+
+    return 0;
+}
